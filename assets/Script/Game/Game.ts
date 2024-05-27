@@ -1,4 +1,18 @@
-import { _decorator, Component, find, instantiate, Node, Prefab, UITransform } from "cc";
+import {
+    _decorator,
+    BoxCollider2D,
+    Component,
+    EventMouse,
+    find,
+    instantiate,
+    Label,
+    Node,
+    Prefab,
+    randomRangeInt,
+    RigidBody2D,
+    UITransform,
+    Vec2,
+} from "cc";
 import { Brick } from "../Brick/Brick";
 const { ccclass, property } = _decorator;
 
@@ -12,6 +26,18 @@ export class Game extends Component {
 
     @property({ type: Prefab })
     row: Prefab = null;
+
+    @property({ type: Node })
+    base: Node = null;
+
+    @property({ type: Node })
+    ball: Node = null;
+
+    @property({ type: Node })
+    lifes: Node = null;
+
+    @property({ type: Label })
+    score: Label = null;
     start() {
         let tileAreaHeight = this.tileArea.getComponent(UITransform).height;
         console.log("tile height", tileAreaHeight);
@@ -37,6 +63,39 @@ export class Game extends Component {
             }
             this.tileArea.addChild(rowNode);
         }
+        let ballCollider = this.ball.getComponent(BoxCollider2D);
+        if (ballCollider) {
+            console.log("ballCollider");
+        }
+        let nodeBoundingBox = this.node.getComponent(UITransform).getBoundingBoxToWorld();
+        if (nodeBoundingBox) {
+            console.log(nodeBoundingBox);
+        }
+        this.node.on(Node.EventType.MOUSE_MOVE, (event: EventMouse) => {
+            let x = event.getUILocation().x;
+            console.log("x", x);
+            if (x > nodeBoundingBox.xMin && x < nodeBoundingBox.xMin + this.base.getComponent(UITransform).width / 2) {
+                this.base.setWorldPosition(
+                    nodeBoundingBox.xMin + this.base.getComponent(UITransform).width / 2,
+                    this.base.worldPosition.y,
+                    0
+                );
+            } else if (
+                x < nodeBoundingBox.xMax &&
+                x > nodeBoundingBox.xMax - this.base.getComponent(UITransform).width / 2
+            ) {
+                this.base.setWorldPosition(
+                    nodeBoundingBox.xMax - this.base.getComponent(UITransform).width / 2,
+                    this.base.worldPosition.y,
+                    0
+                );
+            } else {
+                this.base.setWorldPosition(x, this.base.worldPosition.y, 0);
+            }
+        });
+
+        // let ballRigidBody = this.ball.getComponent(RigidBody2D);
+        // ballRigidBody.linearVelocity = new Vec2(500, 1000);
     }
 
     update(deltaTime: number) {}
