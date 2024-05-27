@@ -1,14 +1,18 @@
 import {
     _decorator,
     BoxCollider2D,
+    Collider,
+    Collider2D,
     Component,
+    Contact2DType,
     EventMouse,
-    find,
     instantiate,
+    Intersection2D,
+    IPhysics2DContact,
     Label,
     Node,
+    PhysicsSystem,
     Prefab,
-    randomRangeInt,
     RigidBody2D,
     UITransform,
     Vec2,
@@ -20,36 +24,25 @@ const { ccclass, property } = _decorator;
 export class Game extends Component {
     @property({ type: Prefab })
     brick: Prefab = null;
-
     @property({ type: Node })
     tileArea: Node = null;
-
     @property({ type: Prefab })
     row: Prefab = null;
-
     @property({ type: Node })
     base: Node = null;
-
     @property({ type: Node })
     ball: Node = null;
-
     @property({ type: Node })
     lifes: Node = null;
-
     @property({ type: Label })
     score: Label = null;
+
+    tileInstanceNodes: Node[] = [];
     start() {
         let tileAreaHeight = this.tileArea.getComponent(UITransform).height;
-        console.log("tile height", tileAreaHeight);
         let tileAreaWidth = this.tileArea.getComponent(UITransform).width;
-        console.log("tile width", tileAreaWidth);
-
         let brickWidth = tileAreaWidth / 10;
-        console.log("brick width", brickWidth);
-
         let noOfRows = Math.floor(tileAreaHeight / brickWidth);
-        console.log("no of rows", noOfRows);
-
         for (let i = 0; i < noOfRows; i++) {
             let rowNode = instantiate(this.row);
             rowNode.getComponent(UITransform).height = brickWidth;
@@ -57,23 +50,16 @@ export class Game extends Component {
                 let brickNode = instantiate(this.brick);
                 brickNode.getComponent(UITransform).width = brickWidth;
                 brickNode.getComponent(UITransform).height = brickWidth;
-
                 brickNode.getComponent(Brick).generateBrick(i, brickWidth);
                 rowNode.addChild(brickNode);
+                this.tileInstanceNodes.push(brickNode);
             }
             this.tileArea.addChild(rowNode);
         }
-        let ballCollider = this.ball.getComponent(BoxCollider2D);
-        if (ballCollider) {
-            console.log("ballCollider");
-        }
         let nodeBoundingBox = this.node.getComponent(UITransform).getBoundingBoxToWorld();
-        if (nodeBoundingBox) {
-            console.log(nodeBoundingBox);
-        }
+
         this.node.on(Node.EventType.MOUSE_MOVE, (event: EventMouse) => {
             let x = event.getUILocation().x;
-            console.log("x", x);
             if (x > nodeBoundingBox.xMin && x < nodeBoundingBox.xMin + this.base.getComponent(UITransform).width / 2) {
                 this.base.setWorldPosition(
                     nodeBoundingBox.xMin + this.base.getComponent(UITransform).width / 2,
@@ -94,9 +80,32 @@ export class Game extends Component {
             }
         });
 
-        // let ballRigidBody = this.ball.getComponent(RigidBody2D);
-        // ballRigidBody.linearVelocity = new Vec2(500, 1000);
+        this.moveBall();
+    }
+    moveBall() {
+        let ballRigidBody = this.ball.getComponent(RigidBody2D);
+        if (ballRigidBody) {
+            ballRigidBody.applyForceToCenter(new Vec2(480, 1000), true);
+            ballRigidBody.linearDamping = 0.5;
+        }
     }
 
-    update(deltaTime: number) {}
+    detectCollision() {
+        for (let tile of this.tileInstanceNodes) {
+            let tileBoundingBox = tile.getComponent(UITransform).getBoundingBoxToWorld();
+
+            let ballBoundingBox = this.ball.getComponent(UITransform).getBoundingBoxToWorld();
+
+            let tileBoxCollider = tile.getComponent(BoxCollider2D);
+            let ballBoxCollider = this.ball.getComponent(BoxCollider2D);
+
+            if (Intersection2D.rectRect(tileBoundingBox, ballBoundingBox)) {
+                console.log("collision detected");
+                tile.destroy();
+            }
+        }
+    }
+    protected update(dt: number): void {
+        this.detectCollision();
+    }
 }
