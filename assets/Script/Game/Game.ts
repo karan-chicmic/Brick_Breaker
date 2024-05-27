@@ -57,7 +57,8 @@ export class Game extends Component {
             this.tileArea.addChild(rowNode);
         }
         let nodeBoundingBox = this.node.getComponent(UITransform).getBoundingBoxToWorld();
-
+        let ballCollider = this.ball.getComponent(Collider2D);
+        ballCollider.on(Contact2DType.BEGIN_CONTACT, this.onBeginContact, this);
         this.node.on(Node.EventType.MOUSE_MOVE, (event: EventMouse) => {
             let x = event.getUILocation().x;
             if (x > nodeBoundingBox.xMin && x < nodeBoundingBox.xMin + this.base.getComponent(UITransform).width / 2) {
@@ -82,12 +83,34 @@ export class Game extends Component {
 
         this.moveBall();
     }
-    moveBall() {
-        let ballRigidBody = this.ball.getComponent(RigidBody2D);
-        if (ballRigidBody) {
-            ballRigidBody.applyForceToCenter(new Vec2(480, 1000), true);
-            ballRigidBody.linearDamping = 0.5;
+    // onBeginContact(contact: any, selfCollider: any, otherCollider: any) {
+    //     // console.log("on begin contact function");
+    //     const ballRigidbody = this.ball.getComponent(RigidBody2D);
+    // }
+    onBeginContact(contact: IPhysics2DContact, selfCollider: Collider2D, otherCollider: Collider2D) {
+        const ballCollider = this.ball.getComponent(Collider2D);
+
+        if (ballCollider === selfCollider || ballCollider === otherCollider) {
+            // Get the tile node involved in the collision
+            const tileNode = otherCollider.node; // Assuming otherCollider is the tile
+
+            // Check if the tile is a child of the tileArea
+            if (tileNode.parent === this.tileArea) {
+                console.log("Collision detected between ball and tile!");
+
+                // Remove the collided tile from its parent (tileArea)
+                tileNode.destroy();
+
+                // Update game logic based on the collision (e.g., score, lives)
+                // ... (your game logic here)
+            }
         }
+    }
+    moveBall() {
+        //
+        const ballRigidbody = this.ball.getComponent(RigidBody2D);
+
+        ballRigidbody.applyLinearImpulseToCenter(new Vec2(10, 30), true);
     }
 
     detectCollision() {
