@@ -49,15 +49,15 @@ export class Game extends Component {
 
     tileInstanceNodes: Node[] = [];
     ballStartPosition: math.Vec3;
-    start() {
-        PhysicsSystem2D.instance.enable = true;
 
-        PhysicsSystem2D.instance.debugDrawFlags =
-            EPhysics2DDrawFlags.Aabb |
-            EPhysics2DDrawFlags.Pair |
-            EPhysics2DDrawFlags.CenterOfMass |
-            EPhysics2DDrawFlags.Joint |
-            EPhysics2DDrawFlags.Shape;
+    start() {
+        // PhysicsSystem2D.instance.enable = true;
+        // PhysicsSystem2D.instance.debugDrawFlags =
+        //     EPhysics2DDrawFlags.Aabb |
+        //     EPhysics2DDrawFlags.Pair |
+        //     EPhysics2DDrawFlags.CenterOfMass |
+        //     EPhysics2DDrawFlags.Joint |
+        //     EPhysics2DDrawFlags.Shape;
 
         let collider = this.getComponent(Collider2D);
         if (collider) {
@@ -112,48 +112,18 @@ export class Game extends Component {
         let ballCollider = this.ball.getComponent(Collider2D);
         ballCollider.on(Contact2DType.BEGIN_CONTACT, this.onBeginContact, this);
         ballCollider.on(Contact2DType.END_CONTACT, this.onExitCollision, this);
+
+        // Ensure ball physics properties
+        const ballRigidbody = this.ball.getComponent(RigidBody2D);
+        // ballRigidbody.type = RigidBody2D.Type.Dynamic; // Ensure the ball is dynamic
+        ballCollider.restitution = 1.0; // Maximum bounciness
+        ballCollider.friction = 0.0; // No friction
     }
 
     playAnimation(anim: Animation) {
         anim.play();
     }
-    // async onBeginContact(contact: IPhysics2DContact, selfCollider: Collider2D, otherCollider: Collider2D) {
-    //     console.log("on begin called");
-    //     const ballCollider = this.ball.getComponent(Collider2D);
-    //     const ballRigidbody = this.ball.getComponent(RigidBody2D);
 
-    //     console.log("self", selfCollider);
-    //     console.log("other", otherCollider);
-
-    //     if (selfCollider.node.name === "Brick") {
-    //         await this.handleCollision(ballRigidbody, selfCollider);
-    //         this.onExitCollision(selfCollider);
-    //         // ballRigidbody.gravityScale = 1;
-    //     } else if (selfCollider.node.name === "base") {
-    //         console.log("collison with base occur");
-
-    //         ballRigidbody.applyLinearImpulseToCenter(new Vec2(-50, 70), false);
-    //     } else if (selfCollider.node.name == "left wall") {
-    //         console.log("collison with left wall occur");
-    //         ballRigidbody.applyLinearImpulseToCenter(new Vec2(50, 30), false);
-    //     } else if (selfCollider.node.name == "right wall") {
-    //         console.log("collison with right wall occur");
-    //         ballRigidbody.applyLinearImpulseToCenter(new Vec2(-50, 30), false);
-    //     } else if (selfCollider.node.name == "top wall") {
-    //         console.log("collison with top wall occur");
-    //         ballRigidbody.applyLinearImpulseToCenter(new Vec2(-50, 30), false);
-    //     } else if (selfCollider.node.name == "bottom wall") {
-    //         console.log("collison with bottom wall occur");
-    //         ballRigidbody.sleep();
-    //         ballRigidbody.allowSleep;
-    //         this.ball.setWorldPosition(this.ballStartPosition);
-    //         this.lifes.removeChild(this.lifes.children.find(() => this.lifes.children.length - 1));
-    //         this.playAnimation(this.welcomeAnimation.getComponent(Animation));
-    //         if (this.lifes.children.length == 0) {
-    //             alert("you loss");
-    //         }
-    //     }
-    // }
     async onBeginContact(contact: IPhysics2DContact, selfCollider: Collider2D, otherCollider: Collider2D) {
         console.log("on begin called");
 
@@ -177,31 +147,29 @@ export class Game extends Component {
         }
     }
 
-    // async handleCollision(ballRigidbody: RigidBody2D, selfCollider: Collider2D): Promise<void> {
-    //     console.log("handle collision called");
-    //     this.updateScore();
-    //     ballRigidbody.applyLinearImpulseToCenter(new Vec2(10, -30), false);
-    // }
     async handleCollision(selfCollider: Collider2D): Promise<void> {
         console.log("handle collision called");
         this.updateScore();
     }
+
     onExitCollision(otherCollider: Collider2D) {
         console.log("on exit called");
         if (otherCollider.node.name === "Brick") {
-            console.log("if of exit collsions");
+            console.log("if of exit collisions");
             otherCollider.node.removeFromParent();
         } else {
             console.log("else executed of exit collision");
         }
     }
+
     updateScore() {
         this.score.string = (parseInt(this.score.string) + 40).toString();
     }
+
     moveBall() {
         const ballRigidbody = this.ball.getComponent(RigidBody2D);
-
         ballRigidbody.applyLinearImpulseToCenter(new Vec2(10, 30), true);
     }
+
     protected update(dt: number): void {}
 }

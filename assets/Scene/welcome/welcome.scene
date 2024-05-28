@@ -1055,7 +1055,7 @@
     },
     "_enabled": true,
     "__prefab": null,
-    "currLevel": 1,
+    "currLevel": 2,
     "levelPrefab": {
       "__uuid__": "59091e67-9d75-4eeb-8149-26d15e946366",
       "__expectedType__": "cc.Prefab"
