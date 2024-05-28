@@ -1,5 +1,6 @@
 import {
     _decorator,
+    AnimationClip,
     BoxCollider2D,
     CircleCollider2D,
     Collider,
@@ -17,6 +18,8 @@ import {
     RigidBody2D,
     UITransform,
     Vec2,
+    Animation,
+    math,
 } from "cc";
 import { Brick } from "../Brick/Brick";
 const { ccclass, property } = _decorator;
@@ -47,10 +50,13 @@ export class Game extends Component {
     @property({ type: Node })
     bottomWall: Node = null;
 
-    
+    @property({ type: Node })
+    welcomeAnimation: Node;
 
     tileInstanceNodes: Node[] = [];
+    ballStartPosition: math.Vec3;
     start() {
+        this.ballStartPosition = this.ball.getWorldPosition();
         let tileAreaHeight = this.tileArea.getComponent(UITransform).height;
         let tileAreaWidth = this.tileArea.getComponent(UITransform).width;
         let brickWidth = tileAreaWidth / 10;
@@ -91,8 +97,12 @@ export class Game extends Component {
                 this.base.setWorldPosition(x, this.base.worldPosition.y, 0);
             }
         });
-
-        this.moveBall();
+        let anim = this.welcomeAnimation.getComponent(Animation);
+        this.playAnimation(anim);
+        anim.on(Animation.EventType.FINISHED, () => {
+            this.moveBall();
+        });
+        // this.moveBall();
         let ballCollider = this.ball.getComponent(Collider2D);
 
         ballCollider.on(Contact2DType.BEGIN_CONTACT, this.onBeginContact, this);
@@ -105,6 +115,9 @@ export class Game extends Component {
         }
     }
 
+    playAnimation(anim: Animation) {
+        anim.play();
+    }
     async onBeginContact(contact: IPhysics2DContact, selfCollider: Collider2D, otherCollider: Collider2D) {
         console.log("on begin called");
         const ballCollider = this.ball.getComponent<Collider2D>(Collider2D);
@@ -130,7 +143,17 @@ export class Game extends Component {
             ballRigidbody.applyLinearImpulseToCenter(new Vec2(-10, 30), true);
         } else if (selfCollider.node.name == "bottom wall") {
             console.log("collison with bottom wall occur");
-            ballRigidbody.applyLinearImpulseToCenter(new Vec2(-10, 30), true);
+            ballRigidbody.sleep();
+            ballRigidbody.allowSleep;
+            this.ball.setWorldPosition(this.ballStartPosition);
+            this.lifes.removeChild(this.lifes.children.find(() => this.lifes.children.length - 1));
+
+            // this.ball.destroy();
+
+            this.playAnimation(this.welcomeAnimation.getComponent(Animation));
+            if (this.lifes.children.length === 0) {
+                alert("you loss");
+            }
         }
     }
 

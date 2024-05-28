@@ -936,7 +936,7 @@
     "_density": 1,
     "_sensor": true,
     "_friction": 0,
-    "_restitution": 0,
+    "_restitution": 1,
     "_offset": {
       "__type__": "cc.Vec2",
       "x": 0,
@@ -1782,7 +1782,9 @@
     "bottomWall": {
       "__id__": 75
     },
-    "currLevel": 1,
+    "welcomeAnimation": {
+      "__id__": 84
+    },
     "_id": "b5ZRpEHy9ER7ZKa9gEFwRf"
   },
   {
@@ -3162,7 +3164,7 @@
     },
     "_enabled": true,
     "__prefab": null,
-    "playOnLoad": true,
+    "playOnLoad": false,
     "_clips": [
       {
         "__uuid__": "df30afb1-2569-4b9b-8fee-08259b800626",

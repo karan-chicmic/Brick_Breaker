@@ -20,13 +20,6 @@ export class levels extends Component {
 
     update(deltaTime: number) {}
 
-    // setLevels(currLevel: number) {
-    //     for (let i = 0; i < 6; i++) {
-    //         let levelNode = instantiate(this.levelPrefab);
-    //         this.customLevel(levelNode, currLevel, i);
-    //     }
-    // }
-
     customLevel(currLevel: number, i: number) {
         if (i < currLevel) {
             this.img.spriteFrame = this.greenScreen;
