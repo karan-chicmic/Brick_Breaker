@@ -103,42 +103,37 @@ export class Game extends Component {
         }
     }
 
-    onBeginContact(contact: IPhysics2DContact, selfCollider: Collider2D, otherCollider: Collider2D) {
+    async onBeginContact(contact: IPhysics2DContact, selfCollider: Collider2D, otherCollider: Collider2D) {
         console.log("on begin called");
-        let ballCollider = this.ball.getComponent(Collider2D);
-        let ballRigidbody = this.ball.getComponent(RigidBody2D);
+        const ballCollider = this.ball.getComponent<Collider2D>(Collider2D);
+        const ballRigidbody = this.ball.getComponent<RigidBody2D>(RigidBody2D);
 
         console.log("self", selfCollider);
         console.log("other", otherCollider);
-        if (selfCollider.node.name == "Brick") {
-            this.handleCollision(ballRigidbody, selfCollider);
+
+        if (selfCollider.node.name === "Brick") {
+            await this.handleCollision(ballRigidbody, selfCollider);
             this.onExitCollision(selfCollider);
-        }
-        if (selfCollider.node.name == "base") {
+        } else if (selfCollider.node.name === "base") {
             console.log("collison with base occur");
             ballRigidbody.applyLinearImpulseToCenter(new Vec2(-100, 90), true);
         }
     }
-    // handleCollision(ballRigidbody: RigidBody2D, selfCollider: Collider2D) {
-    //     this.updateScore();
-    //     ballRigidbody.applyLinearImpulseToCenter(new Vec2(10, -30), true);
-    //     // this.scheduleOnce(() => {
-    //     // selfCollider.node.removeChild(selfCollider.node);
-    //     selfCollider.node.removeFromParent();
-    //     // selfCollider.node.destroy();
-    //     // });
-    // }
-    handleCollision(ballRigidbody: RigidBody2D, selfCollider: Collider2D) {
+
+    async handleCollision(ballRigidbody: RigidBody2D, selfCollider: Collider2D): Promise<void> {
         this.updateScore();
         ballRigidbody.applyLinearImpulseToCenter(new Vec2(10, -30), true);
+        // Wait a bit to simulate some processing (optional)
+        // await new Promise(resolve => setTimeout(resolve, 100));
     }
 
     onExitCollision(selfCollider: Collider2D) {
         console.log("on exit called");
-        if (selfCollider.node.name == "Brick") {
+        if (selfCollider.node.name === "Brick") {
             selfCollider.node.removeFromParent();
         }
     }
+
     updateScore() {
         this.score.string = (parseInt(this.score.string) + 40).toString();
     }
