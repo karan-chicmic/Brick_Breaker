@@ -16,6 +16,7 @@ import {
     math,
     PhysicsSystem2D,
     EPhysics2DDrawFlags,
+    Layout,
 } from "cc";
 import { Brick } from "../Brick/Brick";
 const { ccclass, property } = _decorator;
@@ -55,6 +56,7 @@ export class Game extends Component {
             collider.on(Contact2DType.END_CONTACT, this.onExitCollision, this);
         }
         this.ballStartPosition = this.ball.getWorldPosition();
+        console.log(this.ballStartPosition);
         let tileAreaHeight = this.tileArea.getComponent(UITransform).height;
         let tileAreaWidth = this.tileArea.getComponent(UITransform).width;
         let brickWidth = tileAreaWidth / 10;
@@ -70,7 +72,13 @@ export class Game extends Component {
                 rowNode.addChild(brickNode);
                 this.tileInstanceNodes.push(brickNode);
             }
+            let layoutComponent = rowNode.getComponent(Layout);
+            if (layoutComponent) {
+                console.log("is layout");
+            }
             this.tileArea.addChild(rowNode);
+            layoutComponent.updateLayout();
+            layoutComponent.enabled = false;
         }
         let nodeBoundingBox = this.node.getComponent(UITransform).getBoundingBoxToWorld();
         this.node.on(Node.EventType.MOUSE_MOVE, (event: EventMouse) => {
