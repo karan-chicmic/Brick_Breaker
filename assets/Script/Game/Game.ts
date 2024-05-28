@@ -47,6 +47,8 @@ export class Game extends Component {
     @property({ type: Node })
     bottomWall: Node = null;
 
+    
+
     tileInstanceNodes: Node[] = [];
     start() {
         let tileAreaHeight = this.tileArea.getComponent(UITransform).height;
@@ -107,7 +109,7 @@ export class Game extends Component {
         console.log("on begin called");
         const ballCollider = this.ball.getComponent<Collider2D>(Collider2D);
         const ballRigidbody = this.ball.getComponent<RigidBody2D>(RigidBody2D);
-
+        ballCollider.restitution = 1;
         console.log("self", selfCollider);
         console.log("other", otherCollider);
 
@@ -116,11 +118,24 @@ export class Game extends Component {
             this.onExitCollision(selfCollider);
         } else if (selfCollider.node.name === "base") {
             console.log("collison with base occur");
-            ballRigidbody.applyLinearImpulseToCenter(new Vec2(-100, 90), true);
+            ballRigidbody.applyLinearImpulseToCenter(new Vec2(-50, 60), true);
+        } else if (selfCollider.node.name == "left wall") {
+            console.log("collison with left wall occur");
+            ballRigidbody.applyLinearImpulseToCenter(new Vec2(50, 30), true);
+        } else if (selfCollider.node.name == "right wall") {
+            console.log("collison with right wall occur");
+            ballRigidbody.applyLinearImpulseToCenter(new Vec2(-50, 30), true);
+        } else if (selfCollider.node.name == "top wall") {
+            console.log("collison with top wall occur");
+            ballRigidbody.applyLinearImpulseToCenter(new Vec2(-10, 30), true);
+        } else if (selfCollider.node.name == "bottom wall") {
+            console.log("collison with bottom wall occur");
+            ballRigidbody.applyLinearImpulseToCenter(new Vec2(-10, 30), true);
         }
     }
 
     async handleCollision(ballRigidbody: RigidBody2D, selfCollider: Collider2D): Promise<void> {
+        console.log("handle collision called");
         this.updateScore();
         ballRigidbody.applyLinearImpulseToCenter(new Vec2(10, -30), true);
         // Wait a bit to simulate some processing (optional)
