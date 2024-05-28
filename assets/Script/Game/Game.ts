@@ -1,6 +1,7 @@
 import {
     _decorator,
     BoxCollider2D,
+    CircleCollider2D,
     Collider,
     Collider2D,
     Component,
@@ -37,6 +38,15 @@ export class Game extends Component {
     @property({ type: Label })
     score: Label = null;
 
+    @property({ type: Node })
+    leftWall: Node = null;
+    @property({ type: Node })
+    rightWall: Node = null;
+    @property({ type: Node })
+    topWall: Node = null;
+    @property({ type: Node })
+    bottomWall: Node = null;
+
     tileInstanceNodes: Node[] = [];
     start() {
         let tileAreaHeight = this.tileArea.getComponent(UITransform).height;
@@ -57,8 +67,7 @@ export class Game extends Component {
             this.tileArea.addChild(rowNode);
         }
         let nodeBoundingBox = this.node.getComponent(UITransform).getBoundingBoxToWorld();
-        let ballCollider = this.ball.getComponent(Collider2D);
-        ballCollider.on(Contact2DType.BEGIN_CONTACT, this.onBeginContact, this);
+
         this.node.on(Node.EventType.MOUSE_MOVE, (event: EventMouse) => {
             let x = event.getUILocation().x;
             if (x > nodeBoundingBox.xMin && x < nodeBoundingBox.xMin + this.base.getComponent(UITransform).width / 2) {
@@ -82,53 +91,62 @@ export class Game extends Component {
         });
 
         this.moveBall();
-    }
-    // onBeginContact(contact: any, selfCollider: any, otherCollider: any) {
-    //     // console.log("on begin contact function");
-    //     const ballRigidbody = this.ball.getComponent(RigidBody2D);
-    // }
-    onBeginContact(contact: IPhysics2DContact, selfCollider: Collider2D, otherCollider: Collider2D) {
-        const ballCollider = this.ball.getComponent(Collider2D);
+        let ballCollider = this.ball.getComponent(Collider2D);
 
-        if (ballCollider === selfCollider || ballCollider === otherCollider) {
-            // Get the tile node involved in the collision
-            const tileNode = otherCollider.node; // Assuming otherCollider is the tile
-
-            // Check if the tile is a child of the tileArea
-            if (tileNode.parent === this.tileArea) {
-                console.log("Collision detected between ball and tile!");
-
-                // Remove the collided tile from its parent (tileArea)
-                tileNode.destroy();
-
-                // Update game logic based on the collision (e.g., score, lives)
-                // ... (your game logic here)
-            }
+        ballCollider.on(Contact2DType.BEGIN_CONTACT, this.onBeginContact, this);
+        ballCollider.on(Contact2DType.END_CONTACT, this.onExitCollision, this);
+        if (ballCollider) {
+            console.log("ball collider");
+            console.log(ballCollider);
+        } else {
+            console.log("no ball collider");
         }
     }
+
+    onBeginContact(contact: IPhysics2DContact, selfCollider: Collider2D, otherCollider: Collider2D) {
+        console.log("on begin called");
+        let ballCollider = this.ball.getComponent(Collider2D);
+        let ballRigidbody = this.ball.getComponent(RigidBody2D);
+
+        console.log("self", selfCollider);
+        console.log("other", otherCollider);
+        if (selfCollider.node.name == "Brick") {
+            this.handleCollision(ballRigidbody, selfCollider);
+            this.onExitCollision(selfCollider);
+        }
+        if (selfCollider.node.name == "base") {
+            console.log("collison with base occur");
+            ballRigidbody.applyLinearImpulseToCenter(new Vec2(-100, 90), true);
+        }
+    }
+    // handleCollision(ballRigidbody: RigidBody2D, selfCollider: Collider2D) {
+    //     this.updateScore();
+    //     ballRigidbody.applyLinearImpulseToCenter(new Vec2(10, -30), true);
+    //     // this.scheduleOnce(() => {
+    //     // selfCollider.node.removeChild(selfCollider.node);
+    //     selfCollider.node.removeFromParent();
+    //     // selfCollider.node.destroy();
+    //     // });
+    // }
+    handleCollision(ballRigidbody: RigidBody2D, selfCollider: Collider2D) {
+        this.updateScore();
+        ballRigidbody.applyLinearImpulseToCenter(new Vec2(10, -30), true);
+    }
+
+    onExitCollision(selfCollider: Collider2D) {
+        console.log("on exit called");
+        if (selfCollider.node.name == "Brick") {
+            selfCollider.node.removeFromParent();
+        }
+    }
+    updateScore() {
+        this.score.string = (parseInt(this.score.string) + 40).toString();
+    }
     moveBall() {
-        //
         const ballRigidbody = this.ball.getComponent(RigidBody2D);
 
         ballRigidbody.applyLinearImpulseToCenter(new Vec2(10, 30), true);
     }
 
-    detectCollision() {
-        for (let tile of this.tileInstanceNodes) {
-            let tileBoundingBox = tile.getComponent(UITransform).getBoundingBoxToWorld();
-
-            let ballBoundingBox = this.ball.getComponent(UITransform).getBoundingBoxToWorld();
-
-            let tileBoxCollider = tile.getComponent(BoxCollider2D);
-            let ballBoxCollider = this.ball.getComponent(BoxCollider2D);
-
-            if (Intersection2D.rectRect(tileBoundingBox, ballBoundingBox)) {
-                console.log("collision detected");
-                tile.destroy();
-            }
-        }
-    }
-    protected update(dt: number): void {
-        this.detectCollision();
-    }
+    protected update(dt: number): void {}
 }
