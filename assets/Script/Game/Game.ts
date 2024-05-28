@@ -14,9 +14,10 @@ import {
     Vec2,
     Animation,
     math,
-    PhysicsSystem2D,
-    EPhysics2DDrawFlags,
     Layout,
+    director,
+    BoxCollider2D,
+    randomRangeInt,
 } from "cc";
 import { Brick } from "../Brick/Brick";
 const { ccclass, property } = _decorator;
@@ -49,6 +50,7 @@ export class Game extends Component {
     welcomeAnimation: Node;
     tileInstanceNodes: Node[] = [];
     ballStartPosition: math.Vec3;
+    totalLifes = 2;
     start() {
         let collider = this.getComponent(Collider2D);
         if (collider) {
@@ -56,6 +58,8 @@ export class Game extends Component {
             collider.on(Contact2DType.END_CONTACT, this.onExitCollision, this);
         }
         this.ballStartPosition = this.ball.getWorldPosition();
+        // this.ball.worldPosition = this.ballStartPosition;
+        console.log("before position", this.ball.getWorldPosition());
         console.log(this.ballStartPosition);
         let tileAreaHeight = this.tileArea.getComponent(UITransform).height;
         let tileAreaWidth = this.tileArea.getComponent(UITransform).width;
@@ -120,13 +124,18 @@ export class Game extends Component {
             this.onExitCollision(selfCollider);
         } else if (selfCollider.node.name === "bottom wall") {
             const ballRigidbody = this.ball.getComponent(RigidBody2D);
+            const collider = this.ball.getComponent(BoxCollider2D);
+
             ballRigidbody.sleep();
             ballRigidbody.allowSleep;
             this.ball.setWorldPosition(this.ballStartPosition);
-            this.lifes.removeChild(this.lifes.children.find(() => this.lifes.children.length - 1));
+            ballRigidbody.wakeUp();
+            this.lifes.getChildByName(`ball${this.totalLifes}`).removeFromParent();
+            this.totalLifes = this.totalLifes - 1;
             this.playAnimation(this.welcomeAnimation.getComponent(Animation));
-            if (this.lifes.children.length == 0) {
-                alert("you lose");
+            if (this.totalLifes < 0) {
+                // alert("you lose");
+                director.loadScene("welcome");
             }
         }
     }
@@ -136,8 +145,11 @@ export class Game extends Component {
     onExitCollision(otherCollider: Collider2D) {
         if (otherCollider.node.name === "Brick") {
             otherCollider.node.removeFromParent();
-        } else {
         }
+        // if (otherCollider.node.name === "bottom wall") {
+        //     let ballRigidbody = this.ball.getComponent(RigidBody2D);
+        //     ballRigidbody.linearVelocity = new Vec2(0, 0);
+        // }
     }
     updateScore() {
         this.score.string = (parseInt(this.score.string) + 40).toString();
@@ -145,7 +157,7 @@ export class Game extends Component {
     moveBall() {
         const ballRigidbody = this.ball.getComponent(RigidBody2D);
 
-        ballRigidbody.applyLinearImpulseToCenter(new Vec2(10, 30), true);
+        ballRigidbody.linearVelocity = new Vec2(randomRangeInt(5, 10), randomRangeInt(5, 10));
     }
     protected update(dt: number): void {}
 }
