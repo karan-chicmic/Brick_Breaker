@@ -133,27 +133,29 @@ export class Game extends Component {
         }
 
         let nodeBoundingBox = this.node.getComponent(UITransform).getBoundingBoxToWorld();
-        this.node.on(Node.EventType.MOUSE_MOVE, (event: EventMouse) => {
-            let x = event.getUILocation().x;
-            if (x > nodeBoundingBox.xMin && x < nodeBoundingBox.xMin + this.base.getComponent(UITransform).width / 2) {
-                this.base.setWorldPosition(
-                    nodeBoundingBox.xMin + this.base.getComponent(UITransform).width / 2,
-                    this.base.worldPosition.y,
-                    0
-                );
-            } else if (
-                x < nodeBoundingBox.xMax &&
-                x > nodeBoundingBox.xMax - this.base.getComponent(UITransform).width / 2
-            ) {
-                this.base.setWorldPosition(
-                    nodeBoundingBox.xMax - this.base.getComponent(UITransform).width / 2,
-                    this.base.worldPosition.y,
-                    0
-                );
-            } else {
-                this.base.setWorldPosition(x, this.base.worldPosition.y, 0);
-            }
-        });
+        this.node.on(Node.EventType.TOUCH_START, this.changeBasePosition, this);
+        this.node.on(Node.EventType.MOUSE_MOVE, this.changeBasePosition, this);
+        // this.node.on(Node.EventType.MOUSE_MOVE, (event: EventMouse) => {
+        //     let x = event.getUILocation().x;
+        //     if (x > nodeBoundingBox.xMin && x < nodeBoundingBox.xMin + this.base.getComponent(UITransform).width / 2) {
+        //         this.base.setWorldPosition(
+        //             nodeBoundingBox.xMin + this.base.getComponent(UITransform).width / 2,
+        //             this.base.worldPosition.y,
+        //             0
+        //         );
+        //     } else if (
+        //         x < nodeBoundingBox.xMax &&
+        //         x > nodeBoundingBox.xMax - this.base.getComponent(UITransform).width / 2
+        //     ) {
+        //         this.base.setWorldPosition(
+        //             nodeBoundingBox.xMax - this.base.getComponent(UITransform).width / 2,
+        //             this.base.worldPosition.y,
+        //             0
+        //         );
+        //     } else {
+        //         this.base.setWorldPosition(x, this.base.worldPosition.y, 0);
+        //     }
+        // });
         let anim = this.welcomeAnimation.getComponent(Animation);
         anim.on(Animation.EventType.PLAY, () => {
             this.ball.setWorldPosition(this.ballStartPosition);
@@ -165,6 +167,28 @@ export class Game extends Component {
         let ballCollider = this.ball.getComponent(Collider2D);
         ballCollider.on(Contact2DType.BEGIN_CONTACT, this.onBeginContact, this);
         ballCollider.on(Contact2DType.END_CONTACT, this.onExitCollision, this);
+    }
+    changeBasePosition(event) {
+        let nodeBoundingBox = this.node.getComponent(UITransform).getBoundingBoxToWorld();
+        let x = event.getUILocation().x;
+        if (x > nodeBoundingBox.xMin && x < nodeBoundingBox.xMin + this.base.getComponent(UITransform).width / 2) {
+            this.base.setWorldPosition(
+                nodeBoundingBox.xMin + this.base.getComponent(UITransform).width / 2,
+                this.base.worldPosition.y,
+                0
+            );
+        } else if (
+            x < nodeBoundingBox.xMax &&
+            x > nodeBoundingBox.xMax - this.base.getComponent(UITransform).width / 2
+        ) {
+            this.base.setWorldPosition(
+                nodeBoundingBox.xMax - this.base.getComponent(UITransform).width / 2,
+                this.base.worldPosition.y,
+                0
+            );
+        } else {
+            this.base.setWorldPosition(x, this.base.worldPosition.y, 0);
+        }
     }
     playAnimation(anim: Animation) {
         anim.play();
