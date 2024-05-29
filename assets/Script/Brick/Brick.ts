@@ -14,7 +14,7 @@ export class Brick extends Component {
     update(deltaTime: number) {}
 
     generateBrick(i: number, width: number) {
-        i = i % this.color_img.length;
+        // i = i % this.color_img.length;
         this.brick.getComponent(UITransform).width = width;
         this.brick.getComponent(UITransform).height = width;
         this.brick.spriteFrame = this.color_img[i];

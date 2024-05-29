@@ -290,8 +290,8 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 152.52750419999995,
-      "y": 58.464,
+      "x": 0,
+      "y": 100,
       "z": 0
     },
     "_lrot": {
@@ -351,7 +351,7 @@
     "__prefab": null,
     "_alignFlags": 8,
     "_target": null,
-    "_left": 0.25,
+    "_left": 0.17055859156250003,
     "_right": 0,
     "_top": 0,
     "_bottom": 0,
@@ -448,7 +448,7 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -330,
+      "x": 0,
       "y": -50,
       "z": 0
     },
@@ -1193,7 +1193,7 @@
     "__prefab": null,
     "_alignFlags": 8,
     "_target": null,
-    "_left": 0.25,
+    "_left": 0.421875,
     "_right": 0,
     "_top": 0,
     "_bottom": 0,

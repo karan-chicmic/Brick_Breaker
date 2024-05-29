@@ -18,6 +18,10 @@ import {
     director,
     BoxCollider2D,
     randomRangeInt,
+    JsonAsset,
+    Button,
+    EventHandheld,
+    EventHandler,
 } from "cc";
 import { Brick } from "../Brick/Brick";
 import { DataSingleton } from "../Singleton/DataSingleton";
@@ -51,13 +55,38 @@ export class Game extends Component {
     welcomeAnimation: Node;
     @property({ type: Node })
     popup: Node = null;
-    tileInstanceNodes: Node[] = [];
+    @property({ type: JsonAsset })
+    patternJson: JsonAsset = null;
+    // tileInstanceNodes: Node[] = [];
+    @property({ type: Button })
+    btn: Button = null;
+    @property({ type: Label })
+    popupLabel: Label = null;
     ballStartPosition: math.Vec3;
     totalLifes = 2;
+    totalNoOfBricks = 0;
+    dataSingleton: DataSingleton;
+    mode: number;
+    currLevel: number;
+
+    protected onLoad(): void {}
+    getDataByName(patterns: any[], name: string) {
+        return patterns.find((pattern: { name: any }) => pattern.name === name)?.data || null;
+    }
+
     start() {
-        let dataSingleton = DataSingleton.getInstance();
-        let mode = dataSingleton.getData("mode");
-        let currLevel = dataSingleton.getData(`mode${mode}Level`);
+        this.dataSingleton = DataSingleton.getInstance();
+        this.mode = this.dataSingleton.getData("mode");
+        this.currLevel = this.dataSingleton.getData(`mode${this.mode}Level`);
+        // let currLevel = 6;
+        console.log(`mode ${this.mode} level ${this.currLevel}`);
+
+        let jsonData = this.patternJson.json;
+        let patterns = jsonData.patterns;
+
+        const levelData = this.getDataByName(patterns, `level${this.currLevel}`);
+        console.log(levelData);
+
         // PhysicsSystem2D.instance.enable = true;
 
         // PhysicsSystem2D.instance.debugDrawFlags =
@@ -77,15 +106,19 @@ export class Game extends Component {
         let brickWidth = tileAreaWidth / 10;
         let noOfRows = Math.floor(tileAreaHeight / brickWidth);
         for (let i = 0; i < noOfRows; i++) {
+            // for (let row of levelData) {
+            let row = levelData[i];
             let rowNode = instantiate(this.row);
             rowNode.getComponent(UITransform).height = brickWidth;
-            for (let j = 0; j < 10; j++) {
+            // for (let j = 0; j < 10; j++) {
+            for (let num of row) {
                 let brickNode = instantiate(this.brick);
                 brickNode.getComponent(UITransform).width = brickWidth;
                 brickNode.getComponent(UITransform).height = brickWidth;
-                brickNode.getComponent(Brick).generateBrick(i, brickWidth);
+                brickNode.getComponent(Brick).generateBrick(num, brickWidth);
                 rowNode.addChild(brickNode);
-                this.tileInstanceNodes.push(brickNode);
+                this.totalNoOfBricks = this.totalNoOfBricks + 1;
+                // this.tileInstanceNodes.push(brickNode);
             }
             let layoutComponent = rowNode.getComponent(Layout);
             this.tileArea.addChild(rowNode);
@@ -142,16 +175,30 @@ export class Game extends Component {
             this.totalLifes = this.totalLifes - 1;
             this.playAnimation(this.welcomeAnimation.getComponent(Animation));
             if (this.totalLifes < 0) {
-                this.gameOver();
+                this.gameOver("loss");
             }
         }
     }
     async handleCollision(selfCollider: Collider2D): Promise<void> {
         this.updateScore();
     }
+    // win() {
+    //     this.popup.active = true;
+    //     let anim = this.popup.getComponent(Animation);
+    //     anim.play();
+    //     anim.on(Animation.EventType.FINISHED, () => {
+    //         this.ball.removeFromParent();
+    //         this.base.removeFromParent();
+    //     });
+    // }
     onExitCollision(otherCollider: Collider2D) {
         if (otherCollider.node.name === "Brick") {
             otherCollider.node.removeFromParent();
+            this.totalNoOfBricks = this.totalNoOfBricks - 1;
+            if (this.totalNoOfBricks == 0) {
+                // this.win();
+                this.gameOver("win");
+            }
         }
         if (otherCollider.node.name === "bottom wall") {
             let ballRigidbody = this.ball.getComponent(RigidBody2D);
@@ -163,10 +210,24 @@ export class Game extends Component {
     }
     moveBall() {
         const ballRigidbody = this.ball.getComponent(RigidBody2D);
-        // ballRigidbody.linearVelocity = new Vec2(randomRangeInt(5, 10), randomRangeInt(5, 10));
         ballRigidbody.linearVelocity = new Vec2(15, 15);
     }
-    gameOver() {
+
+    gameOver(name: string) {
+        let clickEventHandler = new EventHandler();
+        clickEventHandler.target = this.node;
+        clickEventHandler.component = "Game";
+        this.popupFunc();
+        if (name == "win") {
+            clickEventHandler.handler = "loadNextLevel";
+            this.popupLabel.string = "You Win!";
+        } else {
+            clickEventHandler.handler = "loadWelcomeScreen";
+            this.popupLabel.string = "You Loss!";
+            // this.btn.= this.loadWelcomeScreen()
+        }
+    }
+    popupFunc() {
         this.popup.active = true;
         let anim = this.popup.getComponent(Animation);
         anim.play();
@@ -176,9 +237,23 @@ export class Game extends Component {
         });
     }
 
-    win() {}
     loadWelcomeScreen() {
-        director.loadScene("welcome");
+        director.loadScene("levels");
+    }
+    loadNextLevel() {
+        this.currLevel = this.currLevel + 1;
+        if (this.currLevel > 6) {
+            this.mode = this.mode + 1;
+        }
+        if (this.mode > 4) {
+            this.popupFunc();
+            this.popupLabel.string = "Congratulations! You have Complete Game!";
+            director.loadScene("welcome");
+        } else {
+            this.dataSingleton.setData("mode", this.mode);
+            this.dataSingleton.setData(`mode${this.mode}Level`, this.currLevel);
+            director.loadScene("levels");
+        }
     }
     update() {}
 }
