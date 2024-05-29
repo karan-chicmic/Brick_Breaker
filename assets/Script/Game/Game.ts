@@ -147,7 +147,7 @@ export class Game extends Component {
             this.totalLifes = this.totalLifes - 1;
             this.playAnimation(this.welcomeAnimation.getComponent(Animation));
             if (this.totalLifes < 0) {
-                // alert("you lose");
+                alert("you lose");
                 director.loadScene("welcome");
             }
         }
@@ -162,6 +162,8 @@ export class Game extends Component {
         if (otherCollider.node.name === "bottom wall") {
             let ballRigidbody = this.ball.getComponent(RigidBody2D);
             ballRigidbody.linearVelocity = new Vec2(0, 0);
+            // ballRigidbody.destroy();
+
             // PhysicsSystem2D.instance.enable = false;
 
             // this.ball.removeComponent(RigidBody2D);
