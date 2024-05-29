@@ -9,6 +9,7 @@ export class Modes extends Component {
     modePrefab: Prefab = null;
     @property({ type: Label })
     msg: Label = null;
+
     start() {
         for (let i = 1; i < 5; i++) {
             let modeNode = instantiate(this.modePrefab);
