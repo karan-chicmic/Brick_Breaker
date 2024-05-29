@@ -18,6 +18,8 @@ import {
     director,
     BoxCollider2D,
     randomRangeInt,
+    PhysicsSystem2D,
+    EPhysics2DDrawFlags,
 } from "cc";
 import { Brick } from "../Brick/Brick";
 const { ccclass, property } = _decorator;
@@ -52,6 +54,14 @@ export class Game extends Component {
     ballStartPosition: math.Vec3;
     totalLifes = 2;
     start() {
+        // PhysicsSystem2D.instance.enable = true;
+
+        // PhysicsSystem2D.instance.debugDrawFlags =
+        //     EPhysics2DDrawFlags.Aabb |
+        //     EPhysics2DDrawFlags.Pair |
+        //     EPhysics2DDrawFlags.CenterOfMass |
+        //     EPhysics2DDrawFlags.Joint |
+        //     EPhysics2DDrawFlags.Shape;
         let collider = this.getComponent(Collider2D);
         if (collider) {
             collider.on(Contact2DType.BEGIN_CONTACT, this.onBeginContact, this);
@@ -109,8 +119,11 @@ export class Game extends Component {
         let anim = this.welcomeAnimation.getComponent(Animation);
         this.playAnimation(anim);
         anim.on(Animation.EventType.FINISHED, () => {
+            this.ball.setWorldPosition(this.ballStartPosition);
+            // PhysicsSystem2D.instance.enable = true;
             this.moveBall();
         });
+
         let ballCollider = this.ball.getComponent(Collider2D);
         ballCollider.on(Contact2DType.BEGIN_CONTACT, this.onBeginContact, this);
         ballCollider.on(Contact2DType.END_CONTACT, this.onExitCollision, this);
@@ -128,8 +141,8 @@ export class Game extends Component {
 
             ballRigidbody.sleep();
             ballRigidbody.allowSleep;
-            this.ball.setWorldPosition(this.ballStartPosition);
-            ballRigidbody.wakeUp();
+
+            // ballRigidbody.wakeUp();
             this.lifes.getChildByName(`ball${this.totalLifes}`).removeFromParent();
             this.totalLifes = this.totalLifes - 1;
             this.playAnimation(this.welcomeAnimation.getComponent(Animation));
@@ -146,10 +159,14 @@ export class Game extends Component {
         if (otherCollider.node.name === "Brick") {
             otherCollider.node.removeFromParent();
         }
-        // if (otherCollider.node.name === "bottom wall") {
-        //     let ballRigidbody = this.ball.getComponent(RigidBody2D);
-        //     ballRigidbody.linearVelocity = new Vec2(0, 0);
-        // }
+        if (otherCollider.node.name === "bottom wall") {
+            let ballRigidbody = this.ball.getComponent(RigidBody2D);
+            ballRigidbody.linearVelocity = new Vec2(0, 0);
+            // PhysicsSystem2D.instance.enable = false;
+
+            // this.ball.removeComponent(RigidBody2D);
+            // this.ball.setWorldPosition(this.ballStartPosition);
+        }
     }
     updateScore() {
         this.score.string = (parseInt(this.score.string) + 40).toString();
