@@ -19,7 +19,7 @@ export class Input extends Component {
         } else if (lifes > 10) {
             this.error.string = "Lives should be in range 0 to 10";
         } else {
-            const dataSingleton = DataSingleton.getInstance();
+            let dataSingleton = DataSingleton.getInstance();
             dataSingleton.setData("mode1Level", 1);
             dataSingleton.setData("mode2Level", 1);
             dataSingleton.setData("mode3Level", 1);
