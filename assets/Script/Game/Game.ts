@@ -18,8 +18,6 @@ import {
     director,
     BoxCollider2D,
     randomRangeInt,
-    PhysicsSystem2D,
-    EPhysics2DDrawFlags,
 } from "cc";
 import { Brick } from "../Brick/Brick";
 const { ccclass, property } = _decorator;
@@ -50,6 +48,8 @@ export class Game extends Component {
     bottomWall: Node = null;
     @property({ type: Node })
     welcomeAnimation: Node;
+    @property({ type: Node })
+    popup: Node = null;
     tileInstanceNodes: Node[] = [];
     ballStartPosition: math.Vec3;
     totalLifes = 2;
@@ -68,9 +68,6 @@ export class Game extends Component {
             collider.on(Contact2DType.END_CONTACT, this.onExitCollision, this);
         }
         this.ballStartPosition = this.ball.getWorldPosition();
-        // this.ball.worldPosition = this.ballStartPosition;
-        console.log("before position", this.ball.getWorldPosition());
-        console.log(this.ballStartPosition);
         let tileAreaHeight = this.tileArea.getComponent(UITransform).height;
         let tileAreaWidth = this.tileArea.getComponent(UITransform).width;
         let brickWidth = tileAreaWidth / 10;
@@ -87,9 +84,6 @@ export class Game extends Component {
                 this.tileInstanceNodes.push(brickNode);
             }
             let layoutComponent = rowNode.getComponent(Layout);
-            if (layoutComponent) {
-                console.log("is layout");
-            }
             this.tileArea.addChild(rowNode);
             layoutComponent.updateLayout();
             layoutComponent.enabled = false;
@@ -122,11 +116,8 @@ export class Game extends Component {
         });
         this.playAnimation(anim);
         anim.on(Animation.EventType.FINISHED, () => {
-            // this.ball.setWorldPosition(this.ballStartPosition);
-            // PhysicsSystem2D.instance.enable = true;
             this.moveBall();
         });
-
         let ballCollider = this.ball.getComponent(Collider2D);
         ballCollider.on(Contact2DType.BEGIN_CONTACT, this.onBeginContact, this);
         ballCollider.on(Contact2DType.END_CONTACT, this.onExitCollision, this);
@@ -141,17 +132,13 @@ export class Game extends Component {
         } else if (selfCollider.node.name === "bottom wall") {
             const ballRigidbody = this.ball.getComponent(RigidBody2D);
             const collider = this.ball.getComponent(BoxCollider2D);
-
             ballRigidbody.sleep();
             ballRigidbody.allowSleep;
-
-            // ballRigidbody.wakeUp();
             this.lifes.getChildByName(`ball${this.totalLifes}`).removeFromParent();
             this.totalLifes = this.totalLifes - 1;
             this.playAnimation(this.welcomeAnimation.getComponent(Animation));
             if (this.totalLifes < 0) {
-                alert("you lose");
-                director.loadScene("welcome");
+                this.gameOver();
             }
         }
     }
@@ -165,15 +152,6 @@ export class Game extends Component {
         if (otherCollider.node.name === "bottom wall") {
             let ballRigidbody = this.ball.getComponent(RigidBody2D);
             ballRigidbody.linearVelocity = new Vec2(0, 0);
-            // ballRigidbody.destroy();
-            // this.ball.destroy();
-            // this.ball.setWorldPosition(this.ballStartPosition);
-            // this.node.addChild(this.ball);
-
-            // PhysicsSystem2D.instance.enable = false;
-
-            // this.ball.removeComponent(RigidBody2D);
-            // this.ball.setWorldPosition(this.ballStartPosition);
         }
     }
     updateScore() {
@@ -181,8 +159,18 @@ export class Game extends Component {
     }
     moveBall() {
         const ballRigidbody = this.ball.getComponent(RigidBody2D);
-
         ballRigidbody.linearVelocity = new Vec2(randomRangeInt(5, 10), randomRangeInt(5, 10));
     }
-    protected update(dt: number): void {}
+    gameOver() {
+        this.popup.active = true;
+        let anim = this.popup.getComponent(Animation);
+        anim.play();
+        anim.on(Animation.EventType.FINISHED, () => {
+            this.ball.removeFromParent();
+            this.base.removeFromParent();
+        });
+    }
+    loadWelcomeScreen() {
+        director.loadScene("welcome");
+    }
 }
