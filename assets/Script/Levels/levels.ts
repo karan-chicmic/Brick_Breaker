@@ -3,9 +3,6 @@ const { ccclass, property } = _decorator;
 
 @ccclass("levels")
 export class levels extends Component {
-    // @property({ type: Prefab })
-    // levelPrefab: Prefab = null;
-
     @property({ type: SpriteFrame })
     lock: SpriteFrame = null;
 
