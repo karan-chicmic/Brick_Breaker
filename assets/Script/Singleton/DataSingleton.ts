@@ -24,13 +24,9 @@ export class DataSingleton {
         return this._data[key] || null;
     }
 
-    // Set data in Scene 1
     // const dataSingleton = DataSingleton.getInstance();
     // dataSingleton.setData('score', 100);
-    // dataSingleton.setData('level', 2);
 
-    // // Access data in Scene 2
     // const dataSingleton = DataSingleton.getInstance();
     // const score = dataSingleton.getData('score');
-    // const level = dataSingleton.getData('level');
 }

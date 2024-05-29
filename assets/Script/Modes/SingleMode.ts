@@ -16,7 +16,7 @@ export class mode extends Component {
 
     onClick() {
         const dataSingleton = DataSingleton.getInstance();
-        dataSingleton.setData("mode", this.modeLabel.string);
+        dataSingleton.setData("mode", parseInt(this.modeLabel.string.charAt(this.modeLabel.string.length - 1)));
         director.loadScene("levels");
     }
 }

@@ -20,8 +20,8 @@ export class levels extends Component {
 
     customLevel(i: number) {
         let dataSingleton = DataSingleton.getInstance();
-        let currLevel = dataSingleton.getData("mode1Level");
-
+        let mode = dataSingleton.getData("mode");
+        let currLevel = dataSingleton.getData(`mode${mode}Level`);
         if (i < currLevel) {
             this.img.spriteFrame = this.greenScreen;
             this.levelLabel.string = (i + 1).toString();

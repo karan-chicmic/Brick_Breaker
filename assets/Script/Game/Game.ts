@@ -20,6 +20,7 @@ import {
     randomRangeInt,
 } from "cc";
 import { Brick } from "../Brick/Brick";
+import { DataSingleton } from "../Singleton/DataSingleton";
 const { ccclass, property } = _decorator;
 
 @ccclass("Game")
@@ -54,6 +55,9 @@ export class Game extends Component {
     ballStartPosition: math.Vec3;
     totalLifes = 2;
     start() {
+        let dataSingleton = DataSingleton.getInstance();
+        let mode = dataSingleton.getData("mode");
+        let currLevel = dataSingleton.getData(`mode${mode}Level`);
         // PhysicsSystem2D.instance.enable = true;
 
         // PhysicsSystem2D.instance.debugDrawFlags =
