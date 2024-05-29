@@ -1,4 +1,5 @@
 import { _decorator, Component, instantiate, Label, Node, Prefab, Sprite, SpriteFrame } from "cc";
+import { DataSingleton } from "../Singleton/DataSingleton";
 const { ccclass, property } = _decorator;
 
 @ccclass("levels")
@@ -17,7 +18,10 @@ export class levels extends Component {
 
     update(deltaTime: number) {}
 
-    customLevel(currLevel: number, i: number) {
+    customLevel(i: number) {
+        let dataSingleton = DataSingleton.getInstance();
+        let currLevel = dataSingleton.getData("mode1Level");
+
         if (i < currLevel) {
             this.img.spriteFrame = this.greenScreen;
             this.levelLabel.string = (i + 1).toString();

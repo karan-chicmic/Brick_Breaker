@@ -159,7 +159,8 @@ export class Game extends Component {
     }
     moveBall() {
         const ballRigidbody = this.ball.getComponent(RigidBody2D);
-        ballRigidbody.linearVelocity = new Vec2(randomRangeInt(5, 10), randomRangeInt(5, 10));
+        // ballRigidbody.linearVelocity = new Vec2(randomRangeInt(5, 10), randomRangeInt(5, 10));
+        ballRigidbody.linearVelocity = new Vec2(15, 15);
     }
     gameOver() {
         this.popup.active = true;
@@ -170,7 +171,10 @@ export class Game extends Component {
             this.base.removeFromParent();
         });
     }
+
+    win() {}
     loadWelcomeScreen() {
         director.loadScene("welcome");
     }
+    update() {}
 }
