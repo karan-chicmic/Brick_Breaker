@@ -117,9 +117,12 @@ export class Game extends Component {
             }
         });
         let anim = this.welcomeAnimation.getComponent(Animation);
+        anim.on(Animation.EventType.PLAY, () => {
+            this.ball.setWorldPosition(this.ballStartPosition);
+        });
         this.playAnimation(anim);
         anim.on(Animation.EventType.FINISHED, () => {
-            this.ball.setWorldPosition(this.ballStartPosition);
+            // this.ball.setWorldPosition(this.ballStartPosition);
             // PhysicsSystem2D.instance.enable = true;
             this.moveBall();
         });
@@ -163,6 +166,9 @@ export class Game extends Component {
             let ballRigidbody = this.ball.getComponent(RigidBody2D);
             ballRigidbody.linearVelocity = new Vec2(0, 0);
             // ballRigidbody.destroy();
+            // this.ball.destroy();
+            // this.ball.setWorldPosition(this.ballStartPosition);
+            // this.node.addChild(this.ball);
 
             // PhysicsSystem2D.instance.enable = false;
 
