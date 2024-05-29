@@ -78,14 +78,10 @@ export class Game extends Component {
         this.dataSingleton = DataSingleton.getInstance();
         this.mode = this.dataSingleton.getData("mode");
         this.currLevel = this.dataSingleton.getData(`mode${this.mode}Level`);
-        // let currLevel = 6;
-        console.log(`mode ${this.mode} level ${this.currLevel}`);
-
         let jsonData = this.patternJson.json;
         let patterns = jsonData.patterns;
 
         const levelData = this.getDataByName(patterns, `level${this.currLevel}`);
-        console.log(levelData);
 
         // PhysicsSystem2D.instance.enable = true;
 
@@ -169,7 +165,6 @@ export class Game extends Component {
             this.onExitCollision(selfCollider);
         } else if (selfCollider.node.name === "bottom wall") {
             const ballRigidbody = this.ball.getComponent(RigidBody2D);
-            const collider = this.ball.getComponent(BoxCollider2D);
             ballRigidbody.sleep();
             ballRigidbody.allowSleep;
             this.lifes.getChildByName(`ball${this.totalLifes}`).removeFromParent();
@@ -188,7 +183,6 @@ export class Game extends Component {
             otherCollider.node.removeFromParent();
             this.totalNoOfBricks = this.totalNoOfBricks - 1;
             if (this.totalNoOfBricks == 0) {
-                // this.win();
                 this.gameOver("win");
             }
         }
@@ -206,14 +200,8 @@ export class Game extends Component {
     }
 
     gameOver(name: string) {
-        let clickEventHandler = new EventHandler();
-        clickEventHandler.target = this.node;
-        clickEventHandler.component = "Game";
         this.popupFunc();
         if (name == "win") {
-            console.log("game over if executed");
-            clickEventHandler.handler = "loadNextLevel";
-            // this.btn.clickEvents = clickEventHandler
             this.btn.node.on(
                 Button.EventType.CLICK,
                 () => {
@@ -223,8 +211,6 @@ export class Game extends Component {
             );
             this.popupLabel.string = "You Win!";
         } else {
-            console.log("game over else executed");
-            clickEventHandler.handler = "loadWelcomeScreen";
             this.popupLabel.string = "You Loss!";
             this.btn.node.on(
                 Button.EventType.CLICK,
@@ -233,7 +219,6 @@ export class Game extends Component {
                 },
                 this
             );
-            // this.btn.= this.loadWelcomeScreen()
         }
     }
     popupFunc() {
@@ -245,24 +230,20 @@ export class Game extends Component {
             this.base.removeFromParent();
         });
     }
-
     loadWelcomeScreen() {
         director.loadScene("levels");
     }
     loadNextLevel() {
         this.currLevel = this.currLevel + 1;
         if (this.currLevel > 6) {
-            console.log("load next level if");
             this.mode = this.mode + 1;
             this.currLevel = this.dataSingleton.getData(`mode${this.mode}Level`);
         }
         if (this.mode > 4) {
-            console.log("load next level if of mode");
             this.popupFunc();
             this.popupLabel.string = "Congratulations! You have Complete Game!";
             director.loadScene("welcome");
         } else {
-            console.log("load next level else");
             this.changeData();
             director.loadScene("levels");
         }
@@ -270,8 +251,5 @@ export class Game extends Component {
     changeData() {
         this.dataSingleton.setData("mode", this.mode);
         this.dataSingleton.setData(`mode${this.mode}Level`, this.currLevel);
-        console.log("Game Mode", this.dataSingleton.getData("mode"));
-        console.log("Game Level", this.dataSingleton.getData(`mode${this.mode}Level`));
     }
-    update() {}
 }
