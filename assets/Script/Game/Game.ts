@@ -22,6 +22,7 @@ import {
     Button,
     EventHandheld,
     EventHandler,
+    SpriteFrame,
 } from "cc";
 import { Brick } from "../Brick/Brick";
 import { DataSingleton } from "../Singleton/DataSingleton";
@@ -57,17 +58,19 @@ export class Game extends Component {
     popup: Node = null;
     @property({ type: JsonAsset })
     patternJson: JsonAsset = null;
-    // tileInstanceNodes: Node[] = [];
     @property({ type: Button })
     btn: Button = null;
     @property({ type: Label })
     popupLabel: Label = null;
+    @property({ type: Prefab })
+    heart: Prefab = null;
     ballStartPosition: math.Vec3;
-    totalLifes = 2;
+    totalLifes: number;
     totalNoOfBricks = 0;
     dataSingleton: DataSingleton;
     mode: number;
     currLevel: number;
+    totalNoOfLifes;
 
     protected onLoad(): void {}
     getDataByName(patterns: any[], name: string) {
@@ -78,6 +81,7 @@ export class Game extends Component {
         this.dataSingleton = DataSingleton.getInstance();
         this.mode = this.dataSingleton.getData("mode");
         this.currLevel = this.dataSingleton.getData(`mode${this.mode}Level`);
+        this.totalNoOfLifes = this.dataSingleton.getData("lifes");
         let jsonData = this.patternJson.json;
         let patterns = jsonData.patterns;
 
@@ -122,6 +126,12 @@ export class Game extends Component {
             layoutComponent.updateLayout();
             layoutComponent.enabled = false;
         }
+        this.totalLifes = this.totalNoOfLifes;
+        for (let i = 0; i < this.totalNoOfLifes; i++) {
+            let heartNode = instantiate(this.heart);
+            this.lifes.addChild(heartNode);
+        }
+
         let nodeBoundingBox = this.node.getComponent(UITransform).getBoundingBoxToWorld();
         this.node.on(Node.EventType.MOUSE_MOVE, (event: EventMouse) => {
             let x = event.getUILocation().x;
@@ -167,10 +177,11 @@ export class Game extends Component {
             const ballRigidbody = this.ball.getComponent(RigidBody2D);
             ballRigidbody.sleep();
             ballRigidbody.allowSleep;
-            this.lifes.getChildByName(`ball${this.totalLifes}`).removeFromParent();
+            // this.lifes.getChildByName(`ball${this.totalLifes}`).removeFromParent();
+            this.lifes.removeChild(this.lifes.children.find(() => this.lifes.children.length - 1));
             this.totalLifes = this.totalLifes - 1;
             this.playAnimation(this.welcomeAnimation.getComponent(Animation));
-            if (this.totalLifes < 0) {
+            if (this.totalLifes <= 0) {
                 this.gameOver("loss");
             }
         }
@@ -252,4 +263,9 @@ export class Game extends Component {
         this.dataSingleton.setData("mode", this.mode);
         this.dataSingleton.setData(`mode${this.mode}Level`, this.currLevel);
     }
+
+    modeOneHandler() {}
+    modeTwoHandler() {}
+    modeThreeHandler() {}
+    modeFourHandler() {}
 }
