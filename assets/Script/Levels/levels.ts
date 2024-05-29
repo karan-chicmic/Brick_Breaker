@@ -17,11 +17,9 @@ export class levels extends Component {
     start() {}
 
     update(deltaTime: number) {}
-
-    customLevel(i: number) {
-        let dataSingleton = DataSingleton.getInstance();
-        let mode = dataSingleton.getData("mode");
-        let currLevel = dataSingleton.getData(`mode${mode}Level`);
+    customLevel(i: number, mode, currLevel) {
+        // console.log("levels mode", mode);
+        // console.log("levels level", currLevel);
         if (i < currLevel) {
             this.img.spriteFrame = this.greenScreen;
             this.levelLabel.string = (i + 1).toString();

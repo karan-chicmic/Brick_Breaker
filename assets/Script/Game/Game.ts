@@ -105,7 +105,8 @@ export class Game extends Component {
         let tileAreaWidth = this.tileArea.getComponent(UITransform).width;
         let brickWidth = tileAreaWidth / 10;
         let noOfRows = Math.floor(tileAreaHeight / brickWidth);
-        for (let i = 0; i < noOfRows; i++) {
+        // for (let i = 0; i < noOfRows; i++) {
+        for (let i = 0; i < 1; i++) {
             // for (let row of levelData) {
             let row = levelData[i];
             let rowNode = instantiate(this.row);
@@ -182,15 +183,6 @@ export class Game extends Component {
     async handleCollision(selfCollider: Collider2D): Promise<void> {
         this.updateScore();
     }
-    // win() {
-    //     this.popup.active = true;
-    //     let anim = this.popup.getComponent(Animation);
-    //     anim.play();
-    //     anim.on(Animation.EventType.FINISHED, () => {
-    //         this.ball.removeFromParent();
-    //         this.base.removeFromParent();
-    //     });
-    // }
     onExitCollision(otherCollider: Collider2D) {
         if (otherCollider.node.name === "Brick") {
             otherCollider.node.removeFromParent();
@@ -219,11 +211,28 @@ export class Game extends Component {
         clickEventHandler.component = "Game";
         this.popupFunc();
         if (name == "win") {
+            console.log("game over if executed");
             clickEventHandler.handler = "loadNextLevel";
+            // this.btn.clickEvents = clickEventHandler
+            this.btn.node.on(
+                Button.EventType.CLICK,
+                () => {
+                    this.loadNextLevel();
+                },
+                this
+            );
             this.popupLabel.string = "You Win!";
         } else {
+            console.log("game over else executed");
             clickEventHandler.handler = "loadWelcomeScreen";
             this.popupLabel.string = "You Loss!";
+            this.btn.node.on(
+                Button.EventType.CLICK,
+                () => {
+                    this.loadWelcomeScreen();
+                },
+                this
+            );
             // this.btn.= this.loadWelcomeScreen()
         }
     }
@@ -243,17 +252,26 @@ export class Game extends Component {
     loadNextLevel() {
         this.currLevel = this.currLevel + 1;
         if (this.currLevel > 6) {
+            console.log("load next level if");
             this.mode = this.mode + 1;
+            this.currLevel = this.dataSingleton.getData(`mode${this.mode}Level`);
         }
         if (this.mode > 4) {
+            console.log("load next level if of mode");
             this.popupFunc();
             this.popupLabel.string = "Congratulations! You have Complete Game!";
             director.loadScene("welcome");
         } else {
-            this.dataSingleton.setData("mode", this.mode);
-            this.dataSingleton.setData(`mode${this.mode}Level`, this.currLevel);
+            console.log("load next level else");
+            this.changeData();
             director.loadScene("levels");
         }
+    }
+    changeData() {
+        this.dataSingleton.setData("mode", this.mode);
+        this.dataSingleton.setData(`mode${this.mode}Level`, this.currLevel);
+        console.log("Game Mode", this.dataSingleton.getData("mode"));
+        console.log("Game Level", this.dataSingleton.getData(`mode${this.mode}Level`));
     }
     update() {}
 }
