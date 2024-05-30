@@ -25,6 +25,7 @@ import {
     SpriteFrame,
     Color,
     Sprite,
+    sys,
 } from "cc";
 import { Brick } from "../Brick/Brick";
 import { DataSingleton } from "../Singleton/DataSingleton";
@@ -86,7 +87,13 @@ export class Game extends Component {
         { name: "Nineth", color: new Color(255, 165, 0) },
         { name: "Tenth", color: new Color(89, 107, 130) },
     ];
-
+    users = {
+        name: "",
+        mode1Level: 0,
+        mode2Level: 0,
+        mode3Level: 0,
+        mode4Level: 0,
+    };
     getDataByName(patterns: any[], name: string) {
         return patterns.find((pattern: { name: any }) => pattern.name === name)?.data || null;
     }
@@ -164,6 +171,7 @@ export class Game extends Component {
         }
     }
     start() {
+        JSON.stringify(this.patternJson);
         this.dataSingleton = DataSingleton.getInstance();
         this.mode = this.dataSingleton.getData("mode");
         this.currLevel = this.dataSingleton.getData(`mode${this.mode}Level`);
@@ -258,6 +266,17 @@ export class Game extends Component {
             this.base.removeFromParent();
         });
     }
+    changeLocalStorage() {
+        let user = sys.localStorage.getItem(this.dataSingleton.getData("name")).name;
+        sys.localStorage.removeItem(user);
+        sys.localStorage.setItem(this.dataSingleton.getData("name"));
+        this.users.name = this.dataSingleton.getData("name");
+        this.users.mode1Level = this.dataSingleton.getData("mode1Level");
+        this.users.mode2Level = this.dataSingleton.getData("mode2Level");
+        this.users.mode3Level = this.dataSingleton.getData("mode3Level");
+        this.users.mode4Level = this.dataSingleton.getData("mode4Level");
+        sys.localStorage.setItem(this.dataSingleton.getData("name"), JSON.stringify(this.users));
+    }
     loadWelcomeScreen() {
         director.loadScene("levels");
     }
@@ -268,6 +287,7 @@ export class Game extends Component {
             this.mode = this.mode + 1;
             this.currLevel = this.dataSingleton.getData(`mode${this.mode}Level`);
         }
+        this.changeLocalStorage();
         if (this.mode > 4) {
             this.popupFunc();
             this.popupLabel.string = "Congratulations! You have Complete Game!";

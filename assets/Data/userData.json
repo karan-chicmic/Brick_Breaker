@@ -1,0 +1,16 @@
+{
+    "users": [
+        {
+            "name": "karan",
+            "data": {
+                "mode1Leve": 1,
+                "mode2Level": 1,
+                "mode3Level": 1,
+                "mode4Level": 1
+            }
+        },
+        {
+            
+        }
+    ]
+}
