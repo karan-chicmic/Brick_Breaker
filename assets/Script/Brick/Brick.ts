@@ -19,15 +19,8 @@ export class Brick extends Component {
     generateBrick(i: number, width: number, BallColors: { name: string; color: Color }[]) {
         this.brick.getComponent(UITransform).width = width;
         this.brick.getComponent(UITransform).height = width;
-        // this.brick.spriteFrame = this.color_img[i];
         this.brick.spriteFrame = this.whiteImg;
         this.brick.color = BallColors[i].color;
-        // this.brick.color = this.BallColors[i].color;
     }
 
-    // changeColor() {
-    //     let ballColor = this.brick.color;
-    //     let availableColors = this.BallColors.filter((c) => !ballColor.equals(c.color));
-    //     ballColor = availableColors[randomRangeInt(0, availableColors.length)].color;
-    // }
 }

@@ -73,6 +73,7 @@ export class Game extends Component {
     mode: number;
     currLevel: number;
     totalNoOfLifes: number;
+    isColliding: boolean = false;
     BallColors = [
         { name: "First", color: new Color(64, 102, 161) },
         { name: "Second", color: new Color(149, 184, 100) },
@@ -115,14 +116,14 @@ export class Game extends Component {
         anim.play();
     }
     async onBeginContact(contact: IPhysics2DContact, selfCollider: Collider2D, otherCollider: Collider2D) {
-        if (selfCollider.node.name === "Brick") {
+        if (selfCollider.node.name === "Brick" && !this.isColliding) {
+            this.isColliding = true;
             await this.handleCollision(selfCollider);
             this.onExitCollision(selfCollider);
         } else if (selfCollider.node.name === "bottom wall") {
             const ballRigidbody = this.ball.getComponent(RigidBody2D);
             ballRigidbody.sleep();
             ballRigidbody.allowSleep;
-
             this.lifes.removeChild(this.lifes.children.find(() => this.lifes.children.length - 1));
             this.totalLifes = this.totalLifes - 1;
             this.playAnimation(this.welcomeAnimation.getComponent(Animation));
@@ -136,6 +137,8 @@ export class Game extends Component {
     }
     onExitCollision(otherCollider: Collider2D) {
         if (otherCollider.node.name === "Brick") {
+            this.isColliding = false;
+
             switch (this.mode) {
                 case 1: {
                     this.modeOneHandler(otherCollider.node);
@@ -260,6 +263,7 @@ export class Game extends Component {
     }
     loadNextLevel() {
         this.currLevel = this.currLevel + 1;
+        console.log("curr level in game", this.currLevel);
         if (this.currLevel > 6) {
             this.mode = this.mode + 1;
             this.currLevel = this.dataSingleton.getData(`mode${this.mode}Level`);

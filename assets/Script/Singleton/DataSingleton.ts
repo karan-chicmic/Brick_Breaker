@@ -23,10 +23,4 @@ export class DataSingleton {
     public getData(key: string): any | null {
         return this._data[key] || null;
     }
-
-    // const dataSingleton = DataSingleton.getInstance();
-    // dataSingleton.setData('score', 100);
-
-    // const dataSingleton = DataSingleton.getInstance();
-    // const score = dataSingleton.getData('score');
 }
