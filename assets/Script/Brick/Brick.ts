@@ -9,28 +9,19 @@ export class Brick extends Component {
     @property({ type: [SpriteFrame] })
     color_img: [SpriteFrame] | [] = [];
 
-    // BallColors = [
-    //     { name: "First", color: new Color(64, 102, 161) },
-    //     { name: "Second", color: new Color(149, 184, 100) },
-    //     { name: "Third", color: new Color(174, 107, 161) },
-    //     { name: "Fourth", color: new Color(214, 102, 76) },
-    //     { name: "Fifth", color: new Color(230, 186, 104) },
-    //     { name: "Sixth", color: new Color(128, 204, 150) },
-    //     { name: "Seventh", color: new Color(70, 92, 50) },
-    //     { name: "Eigth", color: new Color(107, 150, 89) },
-    //     { name: "Nineth", color: new Color(255, 165, 0) },
-    //     { name: "Tenth", color: new Color(89, 107, 130) },
-    // ];
+    @property({ type: SpriteFrame })
+    whiteImg: SpriteFrame = null;
 
     start() {}
 
     update(deltaTime: number) {}
 
-    generateBrick(i: number, width: number) {
-        // i = i % this.color_img.length;
+    generateBrick(i: number, width: number, BallColors: { name: string; color: Color }[]) {
         this.brick.getComponent(UITransform).width = width;
         this.brick.getComponent(UITransform).height = width;
-        this.brick.spriteFrame = this.color_img[i];
+        // this.brick.spriteFrame = this.color_img[i];
+        this.brick.spriteFrame = this.whiteImg;
+        this.brick.color = BallColors[i].color;
         // this.brick.color = this.BallColors[i].color;
     }
 
