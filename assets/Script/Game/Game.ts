@@ -85,85 +85,9 @@ export class Game extends Component {
         { name: "Nineth", color: new Color(255, 165, 0) },
         { name: "Tenth", color: new Color(89, 107, 130) },
     ];
-    protected onLoad(): void {}
+
     getDataByName(patterns: any[], name: string) {
         return patterns.find((pattern: { name: any }) => pattern.name === name)?.data || null;
-    }
-
-    start() {
-        this.dataSingleton = DataSingleton.getInstance();
-        this.mode = this.dataSingleton.getData("mode");
-        console.log("mode", this.mode);
-        // this.currLevel = this.dataSingleton.getData(`mode${this.mode}Level`);
-        this.currLevel = 6;
-        this.totalNoOfLifes = this.dataSingleton.getData("lifes");
-        let jsonData = this.patternJson.json;
-        let patterns = jsonData.patterns;
-
-        const levelData = this.getDataByName(patterns, `level${this.currLevel}`);
-
-        // PhysicsSystem2D.instance.enable = true;
-
-        // PhysicsSystem2D.instance.debugDrawFlags =
-        //     EPhysics2DDrawFlags.Aabb |
-        //     EPhysics2DDrawFlags.Pair |
-        //     EPhysics2DDrawFlags.CenterOfMass |
-        //     EPhysics2DDrawFlags.Joint |
-        //     EPhysics2DDrawFlags.Shape;
-        let collider = this.getComponent(Collider2D);
-        if (collider) {
-            collider.on(Contact2DType.BEGIN_CONTACT, this.onBeginContact, this);
-            collider.on(Contact2DType.END_CONTACT, this.onExitCollision, this);
-        }
-        this.ballStartPosition = this.ball.getWorldPosition();
-        let tileAreaHeight = this.tileArea.getComponent(UITransform).height;
-        let tileAreaWidth = this.tileArea.getComponent(UITransform).width;
-        let brickWidth = tileAreaWidth / 10;
-        let noOfRows = Math.floor(tileAreaHeight / brickWidth);
-        this.changeColor();
-        for (let i = 0; i < noOfRows; i++) {
-            // for (let i = 0; i < 1; i++) {
-            // for (let row of levelData) {
-            let row = levelData[i];
-            let rowNode = instantiate(this.row);
-            rowNode.getComponent(UITransform).height = brickWidth;
-            // for (let j = 0; j < 10; j++) {
-            for (let num of row) {
-                let brickNode = instantiate(this.brick);
-                brickNode.getComponent(UITransform).width = brickWidth;
-                brickNode.getComponent(UITransform).height = brickWidth;
-                brickNode.getComponent(Brick).generateBrick(num, brickWidth, this.BallColors);
-                // brickNode.getChildByName("Brick").getComponent(Sprite).color = this.BallColors[i].color;
-
-                rowNode.addChild(brickNode);
-                this.totalNoOfBricks = this.totalNoOfBricks + 1;
-                // this.tileInstanceNodes.push(brickNode);
-            }
-            let layoutComponent = rowNode.getComponent(Layout);
-            this.tileArea.addChild(rowNode);
-            layoutComponent.updateLayout();
-            layoutComponent.enabled = false;
-        }
-        console.log("total no of bricks", this.totalNoOfBricks);
-        this.totalLifes = this.totalNoOfLifes;
-        for (let i = 0; i < this.totalNoOfLifes; i++) {
-            let heartNode = instantiate(this.heart);
-            this.lifes.addChild(heartNode);
-        }
-
-        this.node.on(Node.EventType.TOUCH_START, this.changeBasePosition, this);
-        this.node.on(Node.EventType.MOUSE_MOVE, this.changeBasePosition, this);
-        let anim = this.welcomeAnimation.getComponent(Animation);
-        anim.on(Animation.EventType.PLAY, () => {
-            this.ball.setWorldPosition(this.ballStartPosition);
-        });
-        this.playAnimation(anim);
-        anim.on(Animation.EventType.FINISHED, () => {
-            this.moveBall();
-        });
-        let ballCollider = this.ball.getComponent(Collider2D);
-        ballCollider.on(Contact2DType.BEGIN_CONTACT, this.onBeginContact, this);
-        ballCollider.on(Contact2DType.END_CONTACT, this.onExitCollision, this);
     }
     changeBasePosition(event: { getUILocation: () => { (): any; new (): any; x: any } }) {
         let nodeBoundingBox = this.node.getComponent(UITransform).getBoundingBoxToWorld();
@@ -211,21 +135,17 @@ export class Game extends Component {
         this.updateScore();
     }
     onExitCollision(otherCollider: Collider2D) {
-        console.log("on exit called");
         if (otherCollider.node.name === "Brick") {
             switch (this.mode) {
                 case 1: {
-                    console.log("case 1");
                     this.modeOneHandler(otherCollider.node);
                     break;
                 }
                 case 2: {
-                    console.log("case 2");
                     this.modeTwoHandler(otherCollider.node);
                     break;
                 }
                 case 3: {
-                    console.log("case 3");
                     this.modeThreeHandler(otherCollider.node);
                     break;
                 }
@@ -239,6 +159,62 @@ export class Game extends Component {
             let ballRigidbody = this.ball.getComponent(RigidBody2D);
             ballRigidbody.linearVelocity = new Vec2(0, 0);
         }
+    }
+    start() {
+        this.dataSingleton = DataSingleton.getInstance();
+        this.mode = this.dataSingleton.getData("mode");
+        this.currLevel = this.dataSingleton.getData(`mode${this.mode}Level`);
+        this.totalNoOfLifes = this.dataSingleton.getData("lifes");
+        let jsonData = this.patternJson.json;
+        let patterns = jsonData.patterns;
+
+        const levelData = this.getDataByName(patterns, `level${this.currLevel}`);
+        let collider = this.getComponent(Collider2D);
+        if (collider) {
+            collider.on(Contact2DType.BEGIN_CONTACT, this.onBeginContact, this);
+            collider.on(Contact2DType.END_CONTACT, this.onExitCollision, this);
+        }
+        this.ballStartPosition = this.ball.getWorldPosition();
+        let tileAreaHeight = this.tileArea.getComponent(UITransform).height;
+        let tileAreaWidth = this.tileArea.getComponent(UITransform).width;
+        let brickWidth = tileAreaWidth / 10;
+        let noOfRows = Math.floor(tileAreaHeight / brickWidth);
+        this.changeColor();
+        for (let i = 0; i < noOfRows; i++) {
+            let row = levelData[i];
+            let rowNode = instantiate(this.row);
+            rowNode.getComponent(UITransform).height = brickWidth;
+            for (let num of row) {
+                let brickNode = instantiate(this.brick);
+                brickNode.getComponent(UITransform).width = brickWidth;
+                brickNode.getComponent(UITransform).height = brickWidth;
+                brickNode.getComponent(Brick).generateBrick(num, brickWidth, this.BallColors);
+                rowNode.addChild(brickNode);
+                this.totalNoOfBricks = this.totalNoOfBricks + 1;
+            }
+            let layoutComponent = rowNode.getComponent(Layout);
+            this.tileArea.addChild(rowNode);
+            layoutComponent.updateLayout();
+            layoutComponent.enabled = false;
+        }
+        this.totalLifes = this.totalNoOfLifes;
+        for (let i = 0; i < this.totalNoOfLifes; i++) {
+            let heartNode = instantiate(this.heart);
+            this.lifes.addChild(heartNode);
+        }
+        this.node.on(Node.EventType.TOUCH_START, this.changeBasePosition, this);
+        this.node.on(Node.EventType.MOUSE_MOVE, this.changeBasePosition, this);
+        let anim = this.welcomeAnimation.getComponent(Animation);
+        anim.on(Animation.EventType.PLAY, () => {
+            this.ball.setWorldPosition(this.ballStartPosition);
+        });
+        this.playAnimation(anim);
+        anim.on(Animation.EventType.FINISHED, () => {
+            this.moveBall();
+        });
+        let ballCollider = this.ball.getComponent(Collider2D);
+        ballCollider.on(Contact2DType.BEGIN_CONTACT, this.onBeginContact, this);
+        ballCollider.on(Contact2DType.END_CONTACT, this.onExitCollision, this);
     }
     updateScore() {
         this.score.string = (parseInt(this.score.string) + 40).toString();
@@ -319,36 +295,27 @@ export class Game extends Component {
         if (this.totalNoOfBricks == 0) {
             this.gameOver("win");
         }
+        this.changeColor();
     }
     modeTwoHandler(otherCollider: Node) {
-        console.log("other color", otherCollider.getChildByName("Brick").getComponent(Sprite).color);
-        console.log("self color", this.ball.getComponent(Sprite).color);
-        console.log("other collider", otherCollider);
         if (
             otherCollider.getChildByName("Brick").getComponent(Sprite).color._val ==
             this.ball.getComponent(Sprite).color._val
-            // this.checkColor(otherCollider)
         ) {
-            console.log("if execute of mode two");
             otherCollider.removeFromParent();
             this.totalNoOfBricks = this.totalNoOfBricks - 1;
             if (this.totalNoOfBricks == 0) {
                 this.gameOver("win");
             }
+            this.changeColor();
         } else {
-            console.log("else execute of mode two");
             this.changeColor();
         }
     }
     modeThreeHandler(otherCollider: Node) {
-        console.log("parent", otherCollider.parent);
-        let totalRowBricks = otherCollider.parent.children.length;
-        console.log("total Row bricks", totalRowBricks);
-        this.totalNoOfBricks = this.totalNoOfBricks - totalRowBricks;
         otherCollider.parent.destroy();
-        console.log("total no of bricks", this.totalNoOfBricks);
         this.changeColor();
-        if (this.totalNoOfBricks <= 0) {
+        if (this.tileArea.children.length <= 1) {
             this.gameOver("win");
         }
     }
@@ -358,6 +325,8 @@ export class Game extends Component {
             this.ball.getComponent(Sprite).color._val
         ) {
             this.modeThreeHandler(otherCollider);
+        } else {
+            this.changeColor();
         }
     }
 }
