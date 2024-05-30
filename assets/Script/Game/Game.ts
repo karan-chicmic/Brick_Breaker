@@ -3,7 +3,6 @@ import {
     Collider2D,
     Component,
     Contact2DType,
-    EventMouse,
     instantiate,
     IPhysics2DContact,
     Label,
@@ -16,13 +15,9 @@ import {
     math,
     Layout,
     director,
-    BoxCollider2D,
     randomRangeInt,
     JsonAsset,
     Button,
-    EventHandheld,
-    EventHandler,
-    SpriteFrame,
     Color,
     Sprite,
     sys,
@@ -269,7 +264,7 @@ export class Game extends Component {
     changeLocalStorage() {
         let user = sys.localStorage.getItem(this.dataSingleton.getData("name")).name;
         sys.localStorage.removeItem(user);
-        sys.localStorage.setItem(this.dataSingleton.getData("name"));
+        // sys.localStorage.setItem(this.dataSingleton.getData("name"));
         this.users.name = this.dataSingleton.getData("name");
         this.users.mode1Level = this.dataSingleton.getData("mode1Level");
         this.users.mode2Level = this.dataSingleton.getData("mode2Level");
@@ -285,15 +280,17 @@ export class Game extends Component {
         console.log("curr level in game", this.currLevel);
         if (this.currLevel > 6) {
             this.mode = this.mode + 1;
+            this.changeLocalStorage();
             this.currLevel = this.dataSingleton.getData(`mode${this.mode}Level`);
         }
-        this.changeLocalStorage();
+
         if (this.mode > 4) {
             this.popupFunc();
             this.popupLabel.string = "Congratulations! You have Complete Game!";
             director.loadScene("welcome");
         } else {
             this.changeData();
+            this.changeLocalStorage();
             director.loadScene("levels");
         }
     }

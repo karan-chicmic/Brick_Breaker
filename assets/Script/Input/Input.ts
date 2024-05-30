@@ -16,6 +16,15 @@ export class Input extends Component {
     lifeEditBox: EditBoxComponent = null;
     @property({ type: Label })
     error: Label = null;
+    onLoad() {
+        let lastUser = sys.localStorage.getItem("lastUser");
+        // if (lastUser.value != null) {
+        this.nameEditBox.string = lastUser;
+
+        // } else {
+        //     this.nameEditBox.string = "no user avaiable";
+        // }
+    }
     start() {}
 
     onClick() {
@@ -25,6 +34,7 @@ export class Input extends Component {
         } else if (lifes > 10) {
             this.error.string = "Lives should be in range 0 to 10";
         } else {
+            sys.localStorage.setItem("lastUser", this.nameEditBox.string);
             this.checkIfUserExist();
         }
     }
@@ -48,20 +58,20 @@ export class Input extends Component {
 
     updateSingleton(userExist: boolean, user: any) {
         let dataSingleton = DataSingleton.getInstance();
+        dataSingleton.setData("lifes", this.lifeEditBox.string);
+        // dataSingleton.setData("userData", users)
         if (!userExist) {
             dataSingleton.setData("mode1Level", 1);
             dataSingleton.setData("mode2Level", 1);
             dataSingleton.setData("mode3Level", 1);
             dataSingleton.setData("mode4Level", 1);
             dataSingleton.setData("name", this.nameEditBox.string);
-            dataSingleton.setData("lifes", this.lifeEditBox.string);
         } else {
             dataSingleton.setData("mode1Level", user.mode1Level);
             dataSingleton.setData("mode2Level", user.mode2Level);
             dataSingleton.setData("mode3Level", user.mode3Level);
             dataSingleton.setData("mode4Level", user.mode4Level);
             dataSingleton.setData("name", user.name);
-            dataSingleton.setData("lifes", this.lifeEditBox.string);
         }
     }
 }
