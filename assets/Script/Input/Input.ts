@@ -18,12 +18,8 @@ export class Input extends Component {
     error: Label = null;
     onLoad() {
         let lastUser = sys.localStorage.getItem("lastUser");
-        // if (lastUser.value != null) {
-        this.nameEditBox.string = lastUser;
 
-        // } else {
-        //     this.nameEditBox.string = "no user avaiable";
-        // }
+        this.nameEditBox.string = sys.localStorage.getItem("lastUser") || "";
     }
     start() {}
 
