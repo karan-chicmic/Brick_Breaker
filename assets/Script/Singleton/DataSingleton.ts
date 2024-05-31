@@ -21,6 +21,6 @@ export class DataSingleton {
     }
 
     public getData(key: string): any | null {
-        return this._data[key] || null;
+        return this._data[key] || 1;
     }
 }

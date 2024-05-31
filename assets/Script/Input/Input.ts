@@ -3,10 +3,10 @@ import { DataSingleton } from "../Singleton/DataSingleton";
 const { ccclass, property } = _decorator;
 let users = {
     name: "",
-    mode1Level: 0,
-    mode2Level: 0,
-    mode3Level: 0,
-    mode4Level: 0,
+    mode1Level: 1,
+    mode2Level: 1,
+    mode3Level: 1,
+    mode4Level: 1,
 };
 @ccclass("Input")
 export class Input extends Component {
@@ -17,8 +17,6 @@ export class Input extends Component {
     @property({ type: Label })
     error: Label = null;
     onLoad() {
-        let lastUser = sys.localStorage.getItem("lastUser");
-
         this.nameEditBox.string = sys.localStorage.getItem("lastUser") || "";
     }
     start() {}
@@ -42,10 +40,6 @@ export class Input extends Component {
             director.loadScene("modes");
         } else {
             users.name = this.nameEditBox.string;
-            users.mode1Level = 1;
-            users.mode2Level = 1;
-            users.mode3Level = 1;
-            users.mode4Level = 1;
             sys.localStorage.setItem(this.nameEditBox.string, JSON.stringify(users));
             this.updateSingleton(false, user);
             director.loadScene("modes");
@@ -55,12 +49,7 @@ export class Input extends Component {
     updateSingleton(userExist: boolean, user: any) {
         let dataSingleton = DataSingleton.getInstance();
         dataSingleton.setData("lifes", this.lifeEditBox.string);
-        // dataSingleton.setData("userData", users)
         if (!userExist) {
-            dataSingleton.setData("mode1Level", 1);
-            dataSingleton.setData("mode2Level", 1);
-            dataSingleton.setData("mode3Level", 1);
-            dataSingleton.setData("mode4Level", 1);
             dataSingleton.setData("name", this.nameEditBox.string);
         } else {
             dataSingleton.setData("mode1Level", user.mode1Level);
